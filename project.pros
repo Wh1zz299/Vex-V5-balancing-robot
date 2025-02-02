@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "balancing robot",
+    "project_name": "Wisdo's Balancing Robot",
     "target": "v5",
     "templates": {
       "kernel": {
@@ -256,7 +256,7 @@
     },
     "upload_options": {
       "icon": "pros",
-      "description": "wisdom made this it does stuff",
+      "description": "Self Balancing robot that uses distance sensors instead of a rotational sensor.",
       "slot": 1,
       "after": "run"
     },

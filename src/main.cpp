@@ -11,9 +11,9 @@
 #define Y 305 //Robot Height
 #define RADIUS sqrt(Y^2+(1/2 * X)^2) //length from pivot to end of arm
 
-#define KP 10 //too high makes it wobble //too low then nothing happens
-#define KI 10 //for balancing it should be 10x the P in anything else it would be small
-#define KD 10 //too high makes it jittery //too low makes it overreact(youll know what i mean)
+#define KP 100 //too high makes it wobble //too low then nothing happens
+#define KI 100 //for balancing it should be 10x the P in anything else it would be small
+#define KD 100 //too high makes it jittery //too low makes it overreact(youll know what i mean)
 #define DELAY 10//can be lowered but might cause system lag or overheating
 #define SENSITIVITY 1 //leave for now
 

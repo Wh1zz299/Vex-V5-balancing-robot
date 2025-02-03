@@ -11,9 +11,9 @@
 #define Y 305 //Robot Height
 #define RADIUS sqrt(Y^2+(1/2 * X)^2) //length from pivot to end of arm
 
-#define KP 75 //too high makes it wobble //too low then nothing happens
+#define KP 100 //too high makes it wobble //too low then nothing happens
 #define KI 1 //for balancing it should be 10x the P in anything else it would be small
-#define KD 10 //too high makes it jittery //too low makes it overreact(youll know what i mean)
+#define KD 25 //too high makes it jittery //too low makes it overreact(youll know what i mean)
 #define DELAY 10//can be lowered but might cause system lag or overheating
 #define SENSITIVITY 1 //leave for now
 
@@ -59,8 +59,8 @@ while (true){
 	V1 = distance_sensor.get_object_velocity();
 	V2 = distance_sensor1.get_object_velocity();
 
-	if (V1 > 99) {V1 = 0;}
-	if (V2 > 99) {V2 = 0;}
+	if (V1 > 999) {V1 = 0;}
+	if (V2 > 999) {V2 = 0;}
 
 	ANGULAR_VELOCITY = (V1/RADIUS + (-V2)/RADIUS)/2; 
 

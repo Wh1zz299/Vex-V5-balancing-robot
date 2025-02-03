@@ -11,13 +11,13 @@
 #define Y 305 //Robot Height
 #define RADIUS sqrt(Y^2+(1/2 * X)^2) //length from pivot to end of arm
 
-#define KP 100 //too high makes it wobble //too low then nothing happens
-#define KI 100 //for balancing it should be 10x the P in anything else it would be small
-#define KD 100 //too high makes it jittery //too low makes it overreact(youll know what i mean)
+#define KP 1 //too high makes it wobble //too low then nothing happens
+#define KI 1 //for balancing it should be 10x the P in anything else it would be small
+#define KD 1 //too high makes it jittery //too low makes it overreact(youll know what i mean)
 #define DELAY 10//can be lowered but might cause system lag or overheating
 #define SENSITIVITY 1 //leave for now
 
-#define TARGET_ANGLE (0)
+#define TARGET_ANGLE (M_PI_2 + 0.0698132) // not exaclty zero hovers around 4 degrees
 
 
 //from arduino opensource library 
@@ -28,21 +28,21 @@ void disabled() {
 	lcd::set_text(5,"IM DEAD BTW");
 }
 
-std::atomic<long double> STARTTIME (0);
-void startTimer() {
-	STARTTIME = millis();
-}
+// std::atomic<long double> STARTTIME (0);
+// void startTimer() {
+// 	STARTTIME = millis();
+// }
 
-//gives the time since the start timer was called
-double sinceStart() {
-	return (millis()-STARTTIME.load());
-}
+// //gives the time since the start timer was called
+// double sinceStart() {
+// 	return (millis()-STARTTIME.load());
+// }
 
 
 
 
 // GYRO TASK
-std::atomic<double> MESURED_ANGLE (M_PI_2); //angle of robot in radians
+std::atomic<double> MESURED_ANGLE (0); //angle of robot in radians
 std::atomic<double> ANGULAR_VELOCITY (0);// angluar velocity at pivot
 void calculate_fn(void* param) { 				// will be used just to find angle
 	Distance distance_sensor(DISTANCE_PORT),distance_sensor1(DISTANCE_PORT1);
@@ -54,7 +54,7 @@ void calculate_fn(void* param) { 				// will be used just to find angle
 	
 	
 while (true){
-	startTimer();//shouldnt be needed unless vex runs program slow or too fast
+	//startTimer();//shouldnt be needed unless vex runs program slow or too fast
 
 	V1 = distance_sensor.get_object_velocity();
 	V2 = distance_sensor1.get_object_velocity();
@@ -74,8 +74,9 @@ while (true){
 	
 	z2 = atan(top2/btm2);
 	
-	MESURED_ANGLE = z2;
-	if (h2>h1){MESURED_ANGLE = z;}
+	MESURED_ANGLE = z2+M_PI_2;
+
+	if (h2>h1){MESURED_ANGLE = M_PI_2-z;}
 	//detects right from left PERFECTLY
 	
 	//MATH MUST BE CHECKED!!!!!
@@ -96,13 +97,13 @@ std::atomic<double> MOTOR_OUT (0);
 void PID_fn(void* ignore){
 	double error;
 	long double errorSum;
-	double time = 0.02;
+	double time = 0.01;
 while (true){
 	//MOTOR_OUT = (KP * MESURED_ANGLE) + (KD *ANGULAR_VELOCITY);// this is without integral and time
 	
 	error = TARGET_ANGLE/SENSITIVITY - MESURED_ANGLE/SENSITIVITY;//dived for less sensitivity 
 	errorSum = errorSum + error;
-	time = sinceStart();//shouldnt be needed unless vex runs program slow or too fast
+	//time = sinceStart();
 
 	MOTOR_OUT = (KP*error) + (KI*errorSum*time) - KD*ANGULAR_VELOCITY/time; 
 

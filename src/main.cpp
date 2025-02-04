@@ -14,10 +14,10 @@
 #define KP 100 //too high makes it wobble //too low then nothing happens
 #define KI 1 //for balancing it should be 10x the P in anything else it would be small
 #define KD 25 //too high makes it jittery //too low makes it overreact(youll know what i mean)
-#define DELAY 10//can be lowered but might cause system lag or overheating
+#define DELAY 1//can be lowered but might cause system lag or overheating
 #define SENSITIVITY 1 //leave for now
 
-#define TARGET_ANGLE (M_PI_2 + 0.0698132) // not exaclty zero hovers around 4 degrees
+#define TARGET_ANGLE (M_PI_2 + 0.0698132) // not exact hovers around +4 degrees
 
 
 //from arduino opensource library 
@@ -62,7 +62,9 @@ while (true){
 	if (V1 > 999) {V1 = 0;}
 	if (V2 > 999) {V2 = 0;}
 
-	ANGULAR_VELOCITY = (V1/RADIUS + (-V2)/RADIUS)/2; 
+	ANGULAR_VELOCITY = V1/RADIUS; 
+
+	if (h2>h1){ANGULAR_VELOCITY =(-V2)/RADIUS;}
 
 	h1 = distance_sensor.get_distance();
 	h2 = distance_sensor1.get_distance();
@@ -82,7 +84,6 @@ while (true){
 	if (h2>h1){MESURED_ANGLE = M_PI_2-z;}
 	//detects right from left PERFECTLY
 	
-	//MATH MUST BE CHECKED!!!!!
 
 //filters with both angles gets average
 //this is a tested filter used for these kinda applications
@@ -91,12 +92,14 @@ while (true){
 //MESURED_ANGLE = ANGLE; //(RIGHT_ANGLE+LEFT_ANGLE)/2;
 
 lcd::set_text(3,std::to_string(MESURED_ANGLE*180/M_PI));
+lcd::set_text(4,std::to_string(ANGULAR_VELOCITY));
 delay(DELAY); //delay to keep system alive
 }
 }
 
-//PID TASK
+
 std::atomic<double> MOTOR_OUT (0);
+//PID TASK
 void PID_fn(void* ignore){
 	double error;
 	long double errorSum;
@@ -108,11 +111,11 @@ while (true){
 	errorSum = errorSum + error;
 	//time = sinceStart();
 
-	MOTOR_OUT = (KP*error) + (KI*errorSum*time) - KD*ANGULAR_VELOCITY/time; 
+	MOTOR_OUT = ((KP*error) + (KI*errorSum*time)) - (KD*ANGULAR_VELOCITY/time); 
 
 	//MOTOR_OUT = constrain((KP*error) + (KI*errorSum*time) - KD*ANGULAR_VELOCITY/time,-127,127);//for voltage
 
-	lcd::set_text(4,std::to_string(MOTOR_OUT));
+	lcd::set_text(6,std::to_string(MOTOR_OUT));
 	delay(DELAY); //adjustable to be more responsive
 }
 }
@@ -136,8 +139,6 @@ void initialize() {
 //this is where i will put motor control reading from PID task
 void opcontrol() {
 MotorGroup drive ({MOTOR_PORT,MOTOR_PORT2});
-delay(1);
-
 	while (true)
 	{	
 		//drive.move(MOTOR_OUT);

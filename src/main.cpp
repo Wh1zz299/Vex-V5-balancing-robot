@@ -11,13 +11,13 @@
 #define Y 305 //Robot Height
 #define RADIUS sqrt(Y^2+(1/2 * X)^2) //length from pivot to end of arm
 
-#define KP 100000 //too high makes it wobble //too low then nothing happens
-#define KI 100  //couldnt explain if i wanted to
-#define KD 10000 //too high makes it jittery //too low makes it overreact(youll know what i mean)
+#define KP 1000 //too high makes it wobble //too low then nothing happens
+#define KI 0  //couldnt explain if i wanted to
+#define KD 0 //too high makes it jittery //too low makes it overreact(youll know what i mean)
 #define DELAY 1//can be lowered but might cause system lag or overheating
 #define SENSITIVITY 1.1 //leave for now
 
-#define TARGET_ANGLE (93*M_PI/180) // not exact check every time you start
+#define TARGET_ANGLE (91*M_PI/180) // not exact check every time you start
 
 
 //from arduino opensource library 
@@ -81,7 +81,7 @@ while (true){
 	
 	MESURED_ANGLE = z2+M_PI_2;
 
-	if (h2>h1+5){MESURED_ANGLE = M_PI_2-z;}
+	if (h2>h1){MESURED_ANGLE = M_PI_2-z;}
 	//detects right from left PERFECTLY
 	//added 5 to keep the angle around 90 stable
 	
@@ -112,9 +112,9 @@ while (true){
 	errorSum = errorSum + error;
 	//time = sinceStart();
 
-	MOTOR_OUT = ((KP*error) + (KI*errorSum*time)) - (KD*ANGULAR_VELOCITY/time); 
+	//MOTOR_OUT = ((KP*error) + (KI*errorSum*time)) - (KD*ANGULAR_VELOCITY/time); 
 
-	//MOTOR_OUT = constrain((KP*error) + (KI*errorSum*time) - KD*ANGULAR_VELOCITY/time,-127,127);//for voltage
+	MOTOR_OUT = constrain((KP*error) + (KI*errorSum*time) - KD*ANGULAR_VELOCITY/time,-127,127);//for voltage
 
 	lcd::set_text(6,std::to_string(MOTOR_OUT));
 	delay(DELAY); //adjustable to be more responsive
@@ -142,8 +142,8 @@ void opcontrol() {
 MotorGroup drive ({MOTOR_PORT,MOTOR_PORT2});
 	while (true)
 	{	
-		//drive.move(MOTOR_OUT);
-		drive.move_velocity(MOTOR_OUT);
+		drive.move(MOTOR_OUT);
+		//drive.move_velocity(MOTOR_OUT);
 		delay(DELAY);
 	}
 	
